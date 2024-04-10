@@ -1,0 +1,219 @@
+Lecture STack and functins
+
+;Task 6.1 Initialize the stack. Switch values of registers A and B without using any other register
+MOV SP, 0x0FFF ; initializing stack
+MOV A, 3
+MOV B, 5
+PUSH A
+PUSH B
+POP A
+POP B
+
+HLT
+
+;Task 6.1 Initialize the stack. Switch values of registers A and B without using any other register
+MOV SP, 0x0FFF ; initializing stack
+MOV A, 3
+MOV B, 5
+PUSH A  ; A ->STACK
+MOV A, B
+POP B  ; stack -> B
+;stack was the third temp variable
+
+HLT
+
+;Task 6.2 Push 100 16-bit numbers to stack and examine the part of the memory where the numbers are
+being stored. How many can you push to the stack before you run into troubles? What can happen?
+MOV SP, 0x0FFF ; initializing stack
+	MOV C, 1
+loop: 
+	CMP C, 100
+    JA break
+    PUSH C
+    INC C
+	JMP loop
+break:
+HLT
+
+  ;max numbers is 2036
+
+
+
+
+
+;technically a function but cant be be called multiple times should use CALL and RET
+JMP main
+
+fun:
+	MOV A, B
+    ADD A, 1
+    JMP continue
+    
+main:
+	JMP fun
+continue:
+	HLT
+
+;CALL push the IP (instruction pointer adress), adress where the call was executed put in tack
+;then JMPs to the function
+
+;RET pops the return adress, then JMPs to the adress
+
+
+;this is how functions exist
+JMP main
+
+fun:
+	MOV A, B
+    ADD A, 1
+    RET
+    
+main:
+	MOV SP, 0x0FFF
+	CALL fun
+    MOV B, C
+    CALL fun
+    HLT
+
+;THERE IS NO LIMIT TO NESTING
+;this is how functions exist
+JMP main
+
+fun1: 
+	MOV C, D
+    RET
+fun:
+	MOV A, B
+    CALL fun1
+    ADD A, 1
+    RET
+    
+main:
+	MOV SP, 0x0FFF
+	CALL fun
+    MOV B, C
+    CALL fun
+    HLT
+
+
+
+;Task 6.3 Write a function that pops two 16-bit numbers from the stack and pushes their sum back to
+;the stack. Demonstrate the use of this function
+JMP main
+
+;function add(x, y)
+;computes x + y
+;parameters: 
+	;x -first num (stack)
+	;y-second (stack)
+;returns: x+Y (stack)
+add:
+	POP D ; pop the return adress of the stack
+	POP A
+    POP B
+    ADD A, B
+    PUSH A
+    PUSH D ;ret addr
+	RET
+main:
+	MOV SP, 0x0FFF
+    PUSH 3 
+    PUSH 5
+	CALL add
+    POP A ; the stack has to be empty in the end
+	HLT
+
+
+;Task 6.3 Write a function that pops two 16-bit numbers from the stack and pushes their sum back to
+;the stack. Demonstrate the use of this function
+JMP main
+
+;if theres a way to do this thorugh registers it should be done because doing it with memory adresses is slower then with registers
+
+;function add(x, y)
+;computes x + y
+;parameters: 
+	;x -first num (reg A)
+	;y-second (reg B)
+;returns: x+y (reg C)
+add:
+	ADD A, B
+    MOV C, A
+    RET
+
+main:
+	MOV SP, 0x0FFF
+    MOV A, 3 
+    MOV B, 5
+	CALL add ; add(3,5)-> C
+    
+	HLT
+
+
+
+
+
+;Task 6.4 Write a function max(a, b), that returns the greater of the two given integers. Let the function
+;receive the parameters a and b through registers A and B respectively
+
+JMP main
+
+;func max (a, b)
+;returns higher number
+;parameters:
+	;a -> first num (reg A)
+    ;b -> second (reg B)
+;return: reg A
+		
+max:
+	CMP A, B
+    JAE max_ret
+    MOV A, B
+    
+max_ret:
+	RET
+main:
+	MOV SP, 0x0FFF
+    MOV A, 4
+    MOV B, 7
+	CALL max
+	HLT
+
+
+
+
+;Task 6.4 Write a function max(a, b), that returns the greater of the two given integers. Let the function
+;receive the parameters a and b through registers A and B respectively
+
+JMP main
+
+;func max (a, b)
+;returns higher number
+;parameters:
+	;a -> first num (reg A)
+    ;b -> second (reg B)
+;return: stack						SAME THING BUT THROUGH STACK
+		
+max:
+	POP D ;ret addr
+	CMP A, B
+    JAE push_a
+	PUSH B
+    JMP max_ret
+    
+push_a:
+	PUSH A
+max_ret: 
+    PUSH D  ;ret addr
+	RET
+main:
+	MOV SP, 0x0FFF
+    MOV A, 4
+    MOV B, 7
+	CALL max
+	HLT
+
+
+
+;functions with arbetray ynum of parameters done with stack
+;negative of FFFF i  1 in twos compliment
