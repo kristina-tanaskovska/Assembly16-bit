@@ -1,0 +1,96 @@
+Arrays
+
+Task 7.1
+;; Define an array of 16-bit integers:
+;;numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+;;Write a program that multiplies each value in the array by 10
+JMP main
+numbers:
+DW 1
+DW 2
+DW 3
+DW 4
+DW 5
+DW 6
+DW 7
+DW 8
+DW 9
+DW 10
+
+main:
+	MOV C, 0 ;;for i from 0 to 9
+loop:
+	CMP C, 10 ;; if i>= 10
+    JAE finish
+    MOV D, numbers ;;compute the address numbers[i]
+    MOV A, C		;;take index i
+    MUL 2 			;;each index takes 2 bytes in memory
+    ADD D, A		;;add the index to numbers	
+    MOV A, [D]		;;get numbers[i]
+    MUL 10			;;multiply by 10
+    MOV [D], A		;;store the reult back
+    INC C 			;; i++
+    JMP loop
+finish:
+	HLT
+
+
+
+Task 7.2
+;;Define an array of 16-bit integers that holds 1000 
+;;elements and initialize it with even values
+;;from 2 to 2000.
+
+;;the array starts at 0x0100 ends at 0x08D0
+JMP main
+ORG 0x0004		;;start here
+numbers: 
+ORG 0x07D4		;;end here (2000 bytes)
+
+main:
+	MOV A, numbers	;;adress of 0-th elements
+    MOV C, 0		;;array index
+    MOV B, 2		;;even numbers to be stored in the array
+    
+loop:
+	CMP C, 1000		;;if array index >= 1000 then brea
+    JMP break
+    MOV [A], B		;;StORE THE NUMBERS TO I-TH ARRAY POSITION
+    INC C			
+    ADD A, 2		;;compute the adresses of the next array position
+    ADD B, 2		;;compute the next even number
+    JMP loop
+break:
+	HLT
+
+
+PRINTING HELLO WORLD
+
+JMP main
+s: 	DB " Hello world " 
+	DB 0 
+
+print:
+	MOV D, display
+loop:
+	 MOVB BL, [A] 
+	 CMPB BL, 0 
+	 JE return 
+     MOVB [D], BL
+	 INC A 
+	 INC D 
+	 JMP loop 
+return:
+	 RET
+
+main:
+	 MOV SP , 0x0FFF 
+	 MOV A, s 
+	 CALL print 
+	 
+	 HLT
+
+ORG 0x1000
+display:
+
+
